@@ -1,4 +1,11 @@
+
 <% layout("layouts/boilerplate")%>
+<script>
+    const mapToken = '<%= process.env.MAP_TOKEN || "" %>';
+    const listing = <%- JSON.stringify(listing) %>;
+    const hasCoordinates = <%- (listing.geometry && Array.isArray(listing.geometry.coordinates)) ? 'true' : 'false' %>;
+    const coordinates = <%- (listing.geometry && Array.isArray(listing.geometry.coordinates)) ? JSON.stringify(listing.geometry.coordinates) : 'null' %>;
+</script>
 <body>
     <h3>listing Details</h3>
     <div class="conatinershow">
@@ -14,49 +21,85 @@
                 <li><b>Country</b><br><%= listing.country %></li>
             </ul>
             <br><br>
+
+            <% if(currentUser && currentUser._id.equals(listing.owner.id)) { %>
             <div class="showbtn">
                 <a href="/listings/<%= listing._id%>/edit"><button class="editbtn">Edit</button></a>
                 <form method="post" action="/listings/<%=listing._id%>?_method=delete">
                     <button class="delbtn">Delete</button>
                 </form> </div>
+            <% } %>
         </div>
     </div>
     <b><hr></b>
-    <div class="reviews  row-2 col-8 offset-3">
+    <div class="reviews">
         <h3>Leave a Comment</h3>
-        <form method="post" action="/listings/<%=listing._id%>/reviews" novalidate class=" me-5 needs-validation">
-            <div>
-                <label for="rating" class="form-label">Rating</label> 
-                <input type="range" min="1" max="5" id="rating" name="review[rating]" class="form-range"> 
+            <% if(currentUser) { %>
+
+        <form method="post" action="/listings/<%=listing._id%>/reviews" novalidate class="comment-form">
+            <div class="comment-meta">
+                <strong>Commenting as:</strong> <span class="username"><%= currentUser.username %></span>
             </div>
-            <div>
-                <label for="comment" class="form-label">Comment</label> 
-                <textarea name="review[comment]" id="comment" cols="20" rows="7" class="form-control mb-2" required></textarea>
-                <div class="invalid-feedback">Comment is required</div>
+            <div class="mb-2">
+                <label class="form-label">Rating</label>
+                <div class="stars" role="radiogroup" aria-label="Rating">
+                    <input type="hidden" name="review[rating]" id="ratingValue" value="0">
+                    <button type="button" class="star" data-value="1" aria-label="1 star">★</button>
+                    <button type="button" class="star" data-value="2" aria-label="2 stars">★</button>
+                    <button type="button" class="star" data-value="3" aria-label="3 stars">★</button>
+                    <button type="button" class="star" data-value="4" aria-label="4 stars">★</button>
+                    <button type="button" class="star" data-value="5" aria-label="5 stars">★</button>
+                </div>
             </div>
-            <button class="addbtn rewbtn">Submit</button>
+            <div class="mb-2">
+                <label for="reviewBody" class="form-label">Comment</label>
+                <textarea name="review[comment]" id="reviewBody" cols="20" rows="4" class="form-control" required placeholder="Write your review..."></textarea>
+            </div>
+            <button id="submitReview" class="btn btn-primary" disabled>Submit</button>
         </form>
-                                         <hr>
+        <hr>
+        <% } %>
 <div class="row revbox me-4 mb-3">
-  <% for (review of listing.reviews) { %>
-    <div class="rev-card col-12 col-md-6 col-lg-6 mt-3 mb-4">
-        <div class="me-4 mb-3">
-       <div class="card-body ">
-        <h5 class="card-title">Jane Doe</h5>
-        <p class="card-text"><%= review.comment %></p>
-        <p class="card-text"><%= review.rating %></p>
-      </div>
-      <div>
-        <form class="mb-3" method="post" action="/listings/<%=listing._id%>/reviews/<%= review._id %>?_method=delete">
-          <button class="btn btn-small btn-dark">Delete</button>
-        </form>
-      </div>
+    <% for (review of listing.reviews) { %>
+        <div class="rev-card col-12 col-md-6 col-lg-4 mt-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <%= review.author ? review.author.username : 'Anonymous' %>
+                        <% if (currentUser && review.author && String(currentUser._id) === String(review.author._id)) { %>
+                            <small class="text-muted">(You)</small>
+                        <% } %>
+                    </h5>
+                    <p class="card-text"><%= review.comment %></p>
+                    <div class="review-stars" aria-label="Rating">
+                        <% for (let i = 1; i <= 5; i++) { %>
+                            <span class="star-icon <%= i <= review.rating ? 'filled' : '' %>">★</span>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <% if (currentUser && review.author && String(currentUser._id) === String(review.author._id)) { %>
+                        <form class="d-inline" method="post" action="/listings/<%=listing._id%>/reviews/<%= review._id %>?_method=delete">
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
         </div>
-     
-    </div>
-  <% } %>
+    <% } %>
 </div>
 
+</div >
+<div class="col-12 col-lg-6 offset-lg-1 mb-3">
+    <h3>Where you'll be</h3>
+    <% if (process.env.MAP_TOKEN && listing.geometry && Array.isArray(listing.geometry.coordinates)) { %>
+        <div class="map-wrapper"><div id="map"></div></div>
+        <script src="/js/map.js"></script>
+    <% } else { %>
+        <p class="text-muted">Map not available for this listing.</p>
+        <% if (!process.env.MAP_TOKEN) { %>
+            <p class="text-muted">Missing Mapbox token. Set <code>MAP_TOKEN</code> in your environment.</p>
+        <% } %>
+    <% } %>
 </div>
-       
 </body>

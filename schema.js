@@ -9,6 +9,9 @@ const ListingSchema = Joi.object({
         location: Joi.string().required(),
         country: Joi.string().required(),
         price: Joi.number().required().min(0),
+        category: Joi.string()
+            .valid('Mountain', 'Trending', 'Beach', 'Island', 'Countryside', 'City', 'Camping', 'Snow', 'Desert', 'Lake', 'Villa')
+            .default('Trending'),
         image: Joi.object({
             url: Joi.string().uri().allow("", null),
             filename: Joi.string().allow("", null)

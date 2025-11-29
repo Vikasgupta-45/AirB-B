@@ -3,7 +3,7 @@
     <h2 class="addtopic">Add New Listings</h2>
      <div class="row"></div>
      <div class="col-8 offset-2">
-    <form method="post" action="/listings" novalidate class="needs-validation">
+    <form method="post" action="/listings" enctype="multipart/form-data" novalidate class="needs-validation">
         <div class="mb-2">
         <Label for="title" class="form-label">Title</Label>
         <input name="listing[title]" placeholder="Enter Title" type="text" class="form-control" required>
@@ -13,23 +13,46 @@
         </div>
     
         <div class="mb-2">
-        <Label for="discription" class="form-label">Description</Label>
+        <Label for="description" class="form-label">Description</Label>
         <input name="listing[description]" placeholder="Enter Description" type="text"class="form-control"required>
         <div class="invalid-feedback">
         Please give a valid description
        </div>
         </div>
+<div class="mb-2">
+    <label for="category" class="form-label">Category</label>
+    <select name="listing[category]" id="category" class="form-select" required>
+        <option value="" disabled selected>Select a Category</option>
+        
+        <option value="Trending">Trending</option>
+        <option value="Mountain">Mountain</option>
+        <option value="Beach">Beach</option>
+        <option value="Island">Island</option>
+        <option value="Countryside">Countryside</option>
+        <option value="City">City</option>
+        <option value="Camping">Camping</option>
+        <option value="Snow">Snow</option>
+        <option value="Desert">Desert</option>
+        <option value="Lake">Lake</option>
+        <option value="Villa">Villa</option>
+        
+    </select>
+    <div class="invalid-feedback">
+        Please select a valid Category
+    </div>
+</div>
+        
 
         <div class="mb-2">
-        <Label for="image" class="form-label">Image</Label>
-        <input name="listing[image][url]" placeholder="Enter image url/link" type="text"class="form-control" >
+        <Label for="image" class="form-label">Upload Image</Label>
+        <input name="listing[image]" placeholder="Upload Image" type="file"class="form-control" accept="image/*">
        
         </div>
         
         <div class="row">
         <div class="mb-2 col-md-4">
         <Label for="price" class="form-label">Price</Label>
-        <input name="listing[price]" placeholder="Enter price" type="TEXT"class="form-control"required>
+        <input name="listing[price]" placeholder="Enter price" type="number"class="form-control"required>
         <div class="invalid-feedback">
         Please enter Price
        </div>
@@ -50,7 +73,7 @@
         Please enter Location
        </div>
         </div>
-        
+       
         <div class="addbutton"><button class="addbtn">Add</button></div>
         <br><br>
     </form>

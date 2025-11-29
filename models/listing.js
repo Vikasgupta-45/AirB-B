@@ -17,8 +17,7 @@ const listingSchema = new Schema({
     },
     url: {
       type: String,
-      default:
-        "https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjN8fG5hdHVyZXxlbnwwfHwwfHx8MA%3D%3D",
+      default: "https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=400", // simplified default URL
     },
   },
   price: {
@@ -41,7 +40,50 @@ const listingSchema = new Schema({
   owner:{
     type: Schema.Types.ObjectId,
     ref:"User",
+    required:true,
   },
+  geometry:{
+    type:{
+        type:String,
+        enum:['Point'],
+        // required:true,
+    },  
+    coordinates:{
+        type:[Number],
+        // required:true,
+    }
+  },
+  category: {
+    type: String,
+    enum: ['Mountain','Trending','Beach','Island','Countryside','City','Camping','Snow','Desert','Lake','Villa'],
+    default: 'Trending',
+  }
+});
+
+// Pre-save middleware to ensure image and geometry exist with defaults
+listingSchema.pre('save', function(next) {
+  // Handle image defaults
+  if (!this.image) {
+    this.image = {
+      filename: "listingimage",
+      url: "https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=400"
+    };
+  } else if (!this.image.url) {
+    this.image.url = "https://images.unsplash.com/photo-1439853949127-fa647821eba0?w=400";
+  }
+  if (!this.image.filename) {
+    this.image.filename = "listingimage";
+  }
+  
+  // Handle geometry defaults (CRITICAL: must be complete Point object)
+  if (!this.geometry || !this.geometry.type || !this.geometry.coordinates) {
+    this.geometry = {
+      type: "Point",
+      coordinates: [72.8777, 19.0760] // Mumbai [lng, lat]
+    };
+  }
+  
+  next();
 });
 
 const Listing = mongoose.model("Listing", listingSchema);

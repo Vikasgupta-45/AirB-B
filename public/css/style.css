@@ -1,4 +1,4 @@
- html,body{
+html,body{
     height: 100%;
     margin: 0;
     display: flex;
@@ -182,14 +182,17 @@ box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;}
 @media (max-width: 996px) {
   .conatinershow {
     flex-direction: column;
-    max-width: 95vw;   /* use more of mobile screen */
-    max-height: auto;  /* let height adjust naturally */
+    max-width: 100vw;   /* use full mobile width */
+    width: 100%;
+    max-height: none;  /* let height adjust naturally */
+    padding: 12px;     /* tighter padding on phones */
+   /* let height adjust naturally */
   }
-
+.contimage { width: 100%; }
   .contimage img {
-    width: 100%;       /* take full width */
-    height: auto;    
-    display: block;     /* grow/shrink proportionally */
+  width: 100%;       /* take full width of container */
+    height: auto;      /* preserve aspect ratio */
+    display: block;    /* remove inline gaps */
     object-fit: cover;     /* auto-scale */
     max-height: 20rem; /* optional cap */
   }
@@ -238,26 +241,388 @@ box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;}
   background-color: green;
   color: white;
 }
-.rev-card {
-    width: 90%;
-    max-width: 20rem;
-    height: auto; /* Change from fixed height to auto */
-    min-height: 10rem; /* Use a minimum height */
-    border-radius: 30px;
-    background: #e0e0e0;
-    box-shadow: 15px 15px 30px #bebebe,
-                -15px -15px 30px #ffffff;
-    display: flex;
-    flex-direction: column; /* Stacks content vertically */
-    align-items: flex-start; /* Align text to the start */
-    justify-content: center;
-    margin: 1rem auto; /* Centers the card and adds vertical spacing */
-    padding: 1rem; /* Add padding for text content */
-    box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+/* Review area */
+.comment-form{
+  background: #fff;
+  padding: 1rem 1.2rem;
+  border-radius: 0.6rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  max-width: 900px;
+  margin: 0 0 1.25rem 1rem;
+}
+.comment-form .comment-meta{
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 0.95rem;
+}
+.comment-form .username{
+  color: #fe424d;
+  font-weight: 700;
 }
 
-/* Ensure text inside the card wraps */
-.rev-card p {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
+/* Stars rating UI */
+.stars{ display:flex; gap:6px; }
+.star{
+  background:transparent;
+  border:none;
+  font-size:1.6rem;
+  color:#e5e7eb;
+  cursor:pointer;
+  padding:6px;
+  border-radius:8px;
+  transition: transform .12s ease, color .12s;
+  user-select:none;
+}
+.star:hover{ transform: translateY(-3px); color: #ffd166; text-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.star.active{ color: #ffb020; text-shadow: 0 6px 18px rgba(255,176,32,0.12); }
+
+/* Reviews grid wrapper (uses bootstrap columns too) */
+.revbox{
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  align-items: stretch;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.5rem;
+}
+
+.rev-card{
+  flex: 0 0 auto;
+  width: clamp(260px, 32vw, 360px);
+  min-width: 260px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  scroll-snap-align: start;
+}
+
+/* Inner white card */
+.rev-card .card{
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.8rem 1rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.rev-card .card-body{
+  padding: 0;
+}
+
+/* Review card polish */
+.rev-card .card{
+  transition: transform .14s ease, box-shadow .14s ease;
+}
+.rev-card .card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+}
+.rev-card .card-title{ margin-bottom: 0.25rem; }
+
+/* Stars shown on cards */
+.review-stars{ display:flex; gap:4px; align-items:center; margin-top:0.25rem; }
+.star-icon{ font-size:1.1rem; color:#e5e7eb; transition: color .12s ease, transform .12s ease; }
+.star-icon.filled{ color:#ffb020; text-shadow: 0 2px 8px rgba(255,176,32,0.15); }
+.rev-card .card-text{
+  color: #444;
+  margin-bottom: 0.5rem;
+}
+
+.rev-card .card-footer{
+  background: transparent;
+  border-top: 0;
+  padding: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.rev-card .btn-danger{
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .rev-card{ flex: 1 1 100%; }
+  .comment-form{ padding: 0.8rem; }
+}
+
+/* Reviews grid wrapper: wrap rows, 3 per row at lg */
+.revbox{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: stretch;
+  overflow: visible;
+  scroll-snap-type: none;
+  padding-bottom: 0.5rem;
+}
+
+/* Let Bootstrap columns control widths; keep card responsive */
+.rev-card{
+  flex: 1 1 auto;
+  min-width: 260px;
+  box-sizing: border-box;
+  margin: 0;
+ padding-left: 0.5rem;
+  background: transparent;
+}
+
+/* Card contrast background and border */
+.rev-card .card{
+  background: #f7fbff; /* soft contrast against page bg */
+  border: 1px solid rgba(0,0,0,0.06);
+  transition: transform .14s ease, box-shadow .14s ease, background-color .14s ease;
+}
+.rev-card .card:hover{
+  background: #f3f8ff;
+}
+.rev-card .card-title{ margin-bottom: 0.25rem; }
+
+/* Stars shown on cards */
+.review-stars{ display:flex; gap:4px; align-items:center; margin-top:0.25rem; }
+.star-icon{ font-size:1.1rem; color:#e5e7eb; transition: color .12s ease, transform .12s ease; }
+.star-icon.filled{ color:#ffb020; text-shadow: 0 2px 8px rgba(255,176,32,0.15); }
+.rev-card .card-text{
+  color: #444;
+  margin-bottom: 0.5rem;
+}
+
+.rev-card .card-footer{
+  background: transparent;
+  border-top: 0;
+  padding: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.rev-card .btn-danger{
+  padding: 0.35rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+  .rev-card{ flex: 1 1 100%; }
+  .comment-form{ padding: 0.8rem; }
+}
+
+/* Modern responsive map container */
+.map-wrapper{
+  max-width: 100%;
+  width: 100%;
+  margin-top: 1rem;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(250,250,250,0.6));
+  border: 1px solid rgba(15,23,42,0.06);
+  box-shadow: 0 12px 30px rgba(2,6,23,0.10);
+}
+
+/* make the map preserve a good aspect ratio and be responsive */
+
+/* #map {
+  height: 400px;
+  width:70rem;
+  border-radius: 1rem;
+} */
+/*
+  Base styles for the map container (for all screens, default is usually desktop/large screen)
+  Assuming your map container is a div with an id="map" or a class like "map-container"
+*/
+#map {
+    width:900px; /* Full width for larger screens */
+    height: 400px; /* Default height for desktop */
+}
+
+/* --- Media Query for Tablets (Portrait and Landscape) --- */
+/* Targets screens between 601px and 1024px */
+@media screen and (min-width: 601px) and (max-width: 1024px) {
+    #map {
+        height: 450px; /* Slightly reduced height for tablets */
+        /* You might adjust margin/padding here too */
+    }
+}
+
+/* --- Media Query for Phones (Most common small screen size) --- */
+/* Targets screens up to 600px wide (standard smartphone width) */
+@media screen and (max-width: 600px) {
+    #map {
+        height: 390px; /* Significantly reduced height for phones to save vertical space */
+        width: 390px; /* Optional: add a small margin on the sides */
+        /* margin: 10px auto; Center the map horizontally if width is < 100% */
+    }
+}
+.filters {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    align-items: center;
+}
+
+.filter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-right: 1.3rem;
+    padding-top: 0.9rem;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    min-width: fit-content;
+}
+
+.filter:hover {
+    opacity: 1;
+}
+
+.filter.active {
+    opacity: 1;
+    border-bottom-color: #fe424d;
+    color: #fe424d;
+}
+
+.filter i {
+    font-size: 1.4rem;
+    margin-bottom: 0.3rem;
+}
+
+.filter p {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .filter {
+        padding: 0.6rem 0.8rem;
+    }
+    .filter i {
+        font-size: 1.4rem;
+        margin-bottom: 0.2rem;
+    }
+    .filter p {
+        font-size: 0.75rem;
+    }
+ 
+  
+}
+.data{
+    gap: 0.5rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+ .tax-info {
+    font-size: 0.9rem;
+    display: none;
+  }
+  .toogle{
+   border: 2px solid  black;
+   border-radius: 1rem;
+   height: 3.5rem;
+   padding: 0.8rem ;
+    font-size: 1rem;
+    margin-left: 0;
+    overflow: visible;
+    margin-top: 1rem ;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: normal;
+  
+  }
+/* searchbar */
+.searchbar{
+ margin-left: 4rem;
+
+}
+.search-pal{
+    border-radius: 25px;
+    width: 100%;
+    max-width: 24rem;
+    box-sizing: border-box;
+}
+.search-btn{
+    background-color: #fe424d;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    width: 9rem;
+}
+/* General navbar fix */
+nav.navbar {
+    padding: 8px 12px;
+}
+
+/* Make search bar full width on mobile */
+@media (max-width: 600px) {
+    /* Make the GST toggle compact and readable on phones */
+    .toogle {
+        width: 100%;
+        height: auto;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.95rem;
+        margin: 0.5rem 0 0 0;
+        border-width: 1.5px;
+    }
+    .toogle .form-check-label {
+        line-height: 1.2;
+        white-space: normal; /* allow label to wrap instead of truncating */
+    }
+
+    .searchbar {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    .searchbar form {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        gap: 6px;
+    }
+
+    .searchbar input {
+        flex: 1;
+        font-size: 14px;
+        padding: 10px 12px;
+        border-radius: 18px;
+    }
+
+    .searchbar .search-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+        white-space: nowrap;
+        border-radius: 18px;
+        width: auto; /* let button shrink to content */
+    }
+
+    .search-pal{
+        max-width: none; /* allow full width on phones */
+        width: 100%;
+    }
+}
+@media (max-width: 600px) {
+    .filter-toggle {
+        margin-left: auto;
+        margin-right: 10px;
+        transform: translateY(3px);
+        padding: 6px 14px;
+        font-size: 13px;
+        border-radius: 20px;
+    }
 }

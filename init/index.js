@@ -1,26 +1,43 @@
+require("dotenv").config({ path: "../.env" });  // <-- FIXED
+console.log("Loaded DB URL =", process.env.ATLASDB_URL);
+
 const mongoose = require("mongoose");
-const {data} = require("./data.js");
+const { data } = require("./data.js");
 const Listing = require("../models/listing.js");
 
-main()
-.then(()=>{
-    console.log("Conneccted to db");
-    
-})
-.catch((err)=>{
-    console.log(err);
-})
-async function main(){
-    await mongoose.connect('mongodb://127.0.0.1:27017/AirBnB')
+const ownerId = new mongoose.Types.ObjectId("6929ba35009ceedaa7eae92a");
+
+const dbUrl = process.env.ATLASDB_URL;
+
+async function main() {
+    try {
+        await mongoose.connect(dbUrl);
+        console.log("✅ Connected to Atlas DB");
+    } catch (err) {
+        console.log("❌ Database connection failed:", err);
+        process.exit(1);
+    }
 }
 
-const initDB = async ()=>{
-      await Listing.deleteMany({});
-     const ownerId = new mongoose.Types.ObjectId("64a7f3f4f2d3c9b1f0e4c8a1");
-    const updatedData = data.map((obj) => ({
-      ...obj,
-      owner: ownerId,   })); // ✅ Use ObjectId, not string
-      await Listing.insertMany(updatedData);
-      console.log("data was initialize");
+async function initDB() {
+    try {
+        console.log("🧹 Deleting old listings...");
+        await Listing.deleteMany({});
+
+        console.log("📌 Inserting new listings...");
+        const updatedData = data.map(obj => ({
+            ...obj,
+            owner: ownerId
+        }));
+
+        await Listing.insertMany(updatedData);
+        console.log("🎉 Listings successfully inserted into Atlas!");
+    } catch (err) {
+        console.log("❌ Error while inserting data:", err);
+    } finally {
+        mongoose.connection.close();
+        console.log("🔒 Database connection closed");
+    }
 }
-initDB();
+
+main().then(initDB);
