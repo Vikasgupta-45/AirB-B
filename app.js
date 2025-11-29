@@ -21,12 +21,11 @@ const userRoutes = require("./routes/user.js");
 const methodOverride = require("method-override");
 const { listingSchemab } = require("./schema.js");
 const { Console } = require("console");
-const { cloudinary } = require("./cloudConfig.js");
 
 
 // --- Configuration Setup ---
-const dbUrl = process.env.ATLASDB_URL || 'mongodb://127.0.0.1:27017/AirBnB';
-const sessionSecret = process.env.SECRET || 'dev_session_secret_32_chars_long_please';
+const dbUrl = process.env.ATLASDB_URL ;
+const sessionSecret = process.env.SECRET ;
 
 
 // --- Mongoose Connection Function ---
